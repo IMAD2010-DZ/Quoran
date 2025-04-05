@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="تطبيق القرآن الكريم مع التفسير والترجمة">
+  <meta name="theme-color" content="#001f3f">
+  <title>القرآن الكريم - آيات عشوائية مع التفسير</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #0056b3;
+      --secondary-color: #ffcc00;
+      --dark-blue: #001f3f;
+      --darker-blue: #000d1a;
+      --text-color: #ffffff;
+      --text-secondary: #e0e0e0;
+      --card-bg: rgba(255, 255, 255, 0.1);
+      --card-hover: rgba(255, 255, 255, 0.2);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      background: linear-gradient(135deg, var(--dark-blue), var(--darker-blue));
+      color: var(--text-color);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+    
+    header {
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      width: 100%;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, var(--secondary-color), #ff9900);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
+    }
+    
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      width: 100%;
+    }
+    
+    .content-container {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .verse-box, .explanation-box {
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 15px;
+      margin: 1rem 0;
+      width: 100%;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: var(--transition);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .verse-box:hover {
+      background: var(--card-hover);
+      transform: translateY(-5px);
+      cursor: pointer;
+    }
+    
+    .verse-text {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      line-height: 1.8;
+      font-family: 'Traditional Arabic', 'Arial', sans-serif;
+    }
+    
+    .translation {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      margin-bottom: 1rem;
+    }
+    
+    .explanation {
+      font-size: 1.1rem;
+      text-align: justify;
+    }
+    
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    
+    button {
+      background: var(--secondary-color);
+      border: none;
+      color: #000;
+      font-size: 1.2rem;
+      padding: 1rem 1.5rem;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    button.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+    
+    button.secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .bookmark-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .bookmark-btn:hover {
+      color: var(--secondary-color);
+      transform: scale(1.1);
+    }
+    
+    .bookmark-btn.bookmarked {
+      color: var(--secondary-color);
+    }
+    
+    .verse-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+    
+    .surah-name {
+      font-weight: bold;
+    }
+    
+    .verse-number {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    
+    footer {
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      width: 100%;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    
+    .loading {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--secondary-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    /* تأثيرات النص */
+    .arabic-text {
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* للشاشات الصغيرة */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .verse-text {
+        font-size: 1.5rem;
+      }
+      
+      .verse-box, .explanation-box {
+        padding: 1.5rem;
+      }
+      
+      button {
+        padding: 0.8rem 1.2rem;
+        font-size: 1rem;
+      }
+    }
+    
+    /* وضع غير متصل بالإنترنت */
+    .offline-message {
+      background: #ff4444;
+      color: white;
+      padding: 0.5rem;
+      font-size: 0.9rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-message" id="offlineMessage">
+    <i class="fas fa-wifi-slash"></i> أنت الآن غير متصل بالإنترنت، ولكن يمكنك الاستمرار في استخدام التطبيق
+  </div>
+  
+  <header>
+    <h1>القرآن الكريم</h1>
+    <p class="subtitle">تصفح آيات قرآنية عشوائية مع التفسير والترجمة</p>
+  </header>
+  
+  <main>
+    <div class="content-container" id="content">
+      <div class="verse-box fade-in" onclick="toggleExplanation()">
+        <div class="verse-header">
+          <span class="surah-name">سورة الشرح</span>
+          <span class="verse-number">الآية 5</span>
+        </div>
+        <div class="verse-text arabic-text">فَإِنَّ مَعَ الْعُسْرِ يُسْرًا</div>
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button onclick="showRandomVerse()">
+        <i class="fas fa-random"></i> آية عشوائية
+      </button>
+      <button class="secondary" onclick="shareVerse()">
+        <i class="fas fa-share-alt"></i> مشاركة
+      </button>
+      <button class="secondary" onclick="showBookmarks()">
+        <i class="fas fa-bookmark"></i> المحفوظات
+      </button>
+    </div>
+  </main>
+  
+  <footer>
+    <p>تم تطويره بكل حب لخدمة كتاب الله تعالى | جميع الحقوق محفوظة &copy; <span id="year"></span></p>
+  </footer>
+
+  <script>
+    // بيانات الآيات (يمكن استبدالها بطلب API من مصدر موثوق)
+    const verses = [
+      {
+        id: 1,
+        verse: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا",
+        translation: "Indeed, with hardship [will be] ease.",
+        explanation: "هذه الآية الكريمة من سورة الشرح تذكرنا بأن بعد كل صعوبة تأتي اليسر، وأن الله تعالى لا يكلِّف نفسًا إلا وسعها. وهي بشارة للمؤمنين بأن الصعوبات ليست دائمة، وأن الفرج قريب.",
+        surah: "الشرح",
+        number: 5,
+        juz: 30
+      },
+      {
+        id: 2,
+        verse: "وَقُل رَّبِّ زِدْنِي عِلْمًا",
+        translation: "And say, 'My Lord, increase me in knowledge.'",
+        explanation: "هذه الآية من سورة طه تأمرنا بأن ندعو الله تعالى ليزيدنا علمًا نافعًا. والعلم هنا يشمل العلم الشرعي والعلم الدنيوي النافع. وهي تدل على فضل العلم وأهميته في حياة المسلم.",
+        surah: "طه",
+        number: 114,
+        juz: 16
+      },
+      {
+        id: 3,
+        verse: "لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ",
+        translation: "Do not despair of the mercy of Allah.",
+        explanation: "هذه الآية من سورة الزمر تذكرنا بأن رحمة الله واسعة، وأنه لا ينبغي لعباد الله أن ييأسوا من رحمته مهما كثرت ذنوبهم. فالله تعالى غفور رحيم يقبل التوبة من عباده.",
+        surah: "الزمر",
+        number: 53,
+        juz: 24
+      },
+      {
+        id: 4,
+        verse: "إِنَّ مَعَ الْعُسْرِ يُسْرًا",
+        translation: "Indeed, with hardship comes ease.",
+        explanation: "تكرر هذا المعنى في القرآن للتأكيد على أن اليسر يأتي بعد العسر، وأن الصعوبات مؤقتة. وهذا يبعث الأمل في النفوس ويدعو للصبر والثقة بالله تعالى.",
+        surah: "الشرح",
+        number: 6,
+        juz: 30
+      },
+      {
+        id: 5,
+        verse: "وَتَوَكَّلْ عَلَى الْحَيِّ الَّذِي لَا يَمُوتُ",
+        translation: "And rely upon the Ever-Living who does not die.",
+        explanation: "هذه الآية من سورة الفرقان تأمرنا بالتوكل على الله الحي الذي لا يموت. فمن يتوكل على الله كفاه وأعانه، وهو خير وكيل وخير مستعان.",
+        surah: "الفرقان",
+        number: 58,
+        juz: 19
+      },
+      {
+        id: 6,
+        verse: "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+        translation: "Our Lord, give us in this world [that which is] good and in the Hereafter [that which is] good and protect us from the punishment of the Fire.",
+        explanation: "هذا الدعاء الجامع من سورة البقرة يجمع خيري الدنيا والآخرة. فالحسنة في الدنيا تشمل كل ما ينفع من صحة وعلم ورزق، وفي الآخرة تشمل الجنة والفوز برضوان الله.",
+        surah: "البقرة",
+        number: 201,
+        juz: 2
+      },
+      {
+        id: 7,
+        verse: "وَاصْبِرْ فَإِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ",
+        translation: "And be patient, for indeed, Allah does not allow to be lost the reward of those who do good.",
+        explanation: "هذه الآية من سورة هود تأمر بالصبر وتعد المحسنين بأن الله لا يضيع أجرهم. والصبر هنا يشمل الصبر على الطاعة وعن المعصية وعلى الأقدار المؤلمة.",
+        surah: "هود",
+        number: 115,
+        juz: 12
+      },
+      {
+        id: 8,
+        verse: "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ",
+        translation: "Indeed, Allah is with the patient.",
+        explanation: "هذه الآية من سورة البقرة تبشر الصابرين بمعية الله الخاصة لهم. ومعية الله هنا معية نصر وتأييد وتسديد، وهي أعظم ما يمكن أن يناله المؤمن.",
+        surah: "البقرة",
+        number: 153,
+        juz: 2
+      }
+      // يمكن إضافة المزيد من الآيات هنا
+    ];
+
+    // حالة التطبيق
+    let state = {
+      currentVerse: null,
+      showingExplanation: false,
+      bookmarks: JSON.parse(localStorage.getItem('quranBookmarks')) || [],
+      isOnline: navigator.onLine
+    };
+
+    // عناصر DOM
+    const contentEl = document.getElementById('content');
+    const offlineMessageEl = document.getElementById('offlineMessage');
+    const yearEl = document.getElementById('year');
+
+    // تهيئة التطبيق
+    function init() {
+      // تعيين سنة حقوق النشر
+      yearEl.textContent = new Date().getFullYear();
+      
+      // التحقق من حالة الاتصال
+      updateOnlineStatus();
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
+      
+      // عرض آية عشوائية عند التحميل
+      showRandomVerse();
+    }
+
+    // عرض آية عشوائية
+    function showRandomVerse() {
+      // تأثير التحميل
+      contentEl.innerHTML = '<div class="loading"></div>';
+      
+      // محاكاة جلب البيانات (يمكن استبدالها بطلب API حقيقي)
+      setTimeout(() => {
+        const randomVerse = verses[Math.floor(Math.random() * verses.length)];
+        state.currentVerse = randomVerse;
+        state.showingExplanation = false;
+        
+        renderVerse(randomVerse);
+      }, 500);
+    }
+
+    // عرض الآية
+    function renderVerse(verse) {
+      const isBookmarked = state.bookmarks.some(b => b.id === verse.id);
+      
+      contentEl.innerHTML = `
+        <div class="verse-box fade-in" onclick="toggleExplanation()">
+          <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark(event)">
+            <i class="fas fa-bookmark"></i>
+          </button>
+          <div class="verse-header">
+            <span class="surah-name">سورة ${verse.surah}</span>
+            <span class="verse-number">الآية ${verse.number} | الجزء ${verse.juz}</span>
+          </div>
+          <div class="verse-text arabic-text">${verse.verse}</div>
+        </div>
+      `;
+    }
+
+    // عرض التفسير
+    function renderExplanation() {
+      if (!state.currentVerse) return;
+      
+      const verse = state.currentVerse;
+      const isBookmarked = state.bookmarks.some(b => b.id === verse.id);
+      
+      contentEl.innerHTML = `
+        <div class="verse-box fade-in" onclick="toggleExplanation()">
+          <button class="bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" onclick="toggleBookmark(event)">
+            <i class="fas fa-bookmark"></i>
+          </button>
+          <div class="verse-header">
+            <span class="surah-name">سورة ${verse.surah}</span>
+            <span class="verse-number">الآية ${verse.number} | الجزء ${verse.juz}</span>
+          </div>
+          <div class="verse-text arabic-text">${verse.verse}</div>
+        </div>
+        <div class="explanation-box fade-in">
+          <h3><i class="fas fa-language"></i> الترجمة:</h3>
+          <p class="translation">${verse.translation}</p>
+          <h3><i class="fas fa-info-circle"></i> التفسير:</h3>
+          <p class="explanation">${verse.explanation}</p>
+        </div>
+      `;
+    }
+
+    // تبديل بين الآية والتفسير
+    function toggleExplanation() {
+      if (!state.currentVerse) return;
+      
+      if (state.showingExplanation) {
+        renderVerse(state.currentVerse);
+      } else {
+        renderExplanation();
+      }
+      
+      state.showingExplanation = !state.showingExplanation;
+    }
+
+    // إضافة/إزالة من المحفوظات
+    function toggleBookmark(event) {
+      event.stopPropagation(); // منع تنشيط حدث العنصر الأب
+      
+      if (!state.currentVerse) return;
+      
+      const index = state.bookmarks.findIndex(b => b.id === state.currentVerse.id);
+      
+      if (index === -1) {
+        // إضافة إلى المحفوظات
+        state.bookmarks.push(state.currentVerse);
+        event.target.classList.add('bookmarked');
+        showToast('تمت إضافة الآية إلى المحفوظات');
+      } else {
+        // إزالة من المحفوظات
+        state.bookmarks.splice(index, 1);
+        event.target.classList.remove('bookmarked');
+        showToast('تمت إزالة الآية من المحفوظات');
+      }
+      
+      // حفظ المحفوظات في localStorage
+      localStorage.setItem('quranBookmarks', JSON.stringify(state.bookmarks));
+    }
+
+    // عرض المحفوظات
+    function showBookmarks() {
+      if (state.bookmarks.length === 0) {
+        contentEl.innerHTML = `
+          <div class="verse-box fade-in">
+            <h3><i class="fas fa-bookmark"></i> المحفوظات</h3>
+            <p>لا توجد آيات محفوظة بعد.</p>
+          </div>
+        `;
+        return;
+      }
+      
+      let html = '<div class="verse-box fade-in"><h3><i class="fas fa-bookmark"></i> المحفوظات</h3>';
+      
+      state.bookmarks.forEach(verse => {
+        html += `
+          <div class="bookmark-item" style="margin: 1rem 0; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <div style="display: flex; justify-content: space-between;">
+              <strong>سورة ${verse.surah} (آية ${verse.number})</strong>
+              <button onclick="showBookmarkedVerse(${verse.id})" style="background: none; border: none; color: var(--secondary-color); cursor: pointer;">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+            <p class="arabic-text" style="margin-top: 0.5rem;">${verse.verse}</p>
+          </div>
+        `;
+      });
+      
+      html += '</div>';
+      contentEl.innerHTML = html;
+    }
+
+    // عرض آية محفوظة
+    function showBookmarkedVerse(id) {
+      const verse = state.bookmarks.find(b => b.id === id);
+      if (!verse) return;
+      
+      state.currentVerse = verse;
+      state.showingExplanation = false;
+      renderVerse(verse);
+    }
+
+    // مشاركة الآية
+    function shareVerse() {
+      if (!state.currentVerse) return;
+      
+      const verse = state.currentVerse;
+      const shareText = `آية من سورة ${verse.surah}:\n${verse.verse}\n\n${verse.translation}\n\nvia Quran App`;
+      
+      if (navigator.share) {
+        navigator.share({
+          title: `سورة ${verse.surah} - آية ${verse.number}`,
+          text: shareText,
+          url: window.location.href
+        }).catch(err => {
+          console.log('Error sharing:', err);
+          copyToClipboard(shareText);
+        });
+      } else {
+        copyToClipboard(shareText);
+      }
+    }
+
+    // نسخ إلى الحافظة
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('تم نسخ الآية إلى الحافظة');
+      }).catch(err => {
+        console.log('Failed to copy:', err);
+        // طريقة بديلة للمتصفحات القديمة
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        showToast('تم نسخ الآية إلى الحافظة');
+      });
+    }
+
+    // عرض رسالة toast
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.textContent = message;
+      toast.style.position = 'fixed';
+      toast.style.bottom = '20px';
+      toast.style.left = '50%';
+      toast.style.transform = 'translateX(-50%)';
+      toast.style.backgroundColor = 'rgba(0,0,0,0.7)';
+      toast.style.color = 'white';
+      toast.style.padding = '10px 20px';
+      toast.style.borderRadius = '20px';
+      toast.style.zIndex = '1000';
+      toast.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.5s';
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, 500);
+      }, 3000);
+    }
+
+    // تحديث حالة الاتصال
+    function updateOnlineStatus() {
+      state.isOnline = navigator.onLine;
+      offlineMessageEl.style.display = state.isOnline ? 'none' : 'block';
+    }
+
+    // تهيئة التطبيق عند تحميل الصفحة
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
